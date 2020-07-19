@@ -1,0 +1,63 @@
+const search = document.getElementById("search"),
+  submit = document.getElementById("submit"),
+  random = document.getElementById("random"),
+  mealsEl = document.getElementById("meals"),
+  resultHeading = document.getElementById("result-heading"),
+  singleMeal = document.getElementById("single-meal");
+
+//search meal and fetch from apisingle-meal
+function searchMeal(e) {
+  e.preventDefault();
+
+  //clear single meal
+  singleMeal.innerHTML = "";
+
+  //get search term
+  const term = search.value;
+
+  if (term.trim()) {
+    fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${term}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        resultHeading.innerHTML = `<h2>Search results for '${term}':</h2>`;
+
+        if (data.meals === null) {
+          resultHeading.innerHTML = `<p>Search results came back empty. Try another meal</p>`;
+        } else {
+          mealsEl.innerHTML = data.meals
+            .map(
+              (meal) => `
+          
+          <div class="meal">
+            <img src="${meal.strMealThumb}" alt="${meal.strMeal}"/>
+            <div class="meal-info" data-mealId="${meal.idMeal}">
+            <h3>${meal.strMeal}</h3>
+            </div>
+          </div>
+
+          `
+            )
+            .join("");
+        }
+      });
+    //clear search text
+    search.value = "";
+  } else {
+    alert("Please input something to search for");
+  }
+}
+
+//event listeners
+submit.addEventListener("submit", searchMeal);
+
+mealsEl.addEventListener("click", (e) => {
+  const mealInfo = e.path.find((item) => {
+    if (item.classList) {
+      return (item.classList = "meal-info");
+    } else {
+      return false;
+    }
+  });
+  console.log(mealInfo);
+});
